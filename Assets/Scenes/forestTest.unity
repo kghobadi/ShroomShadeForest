@@ -4635,9 +4635,11 @@ MonoBehaviour:
   treePrefabs:
   - {fileID: 1689396482608992, guid: eb54e75a62a47004d85b0a8f8a84b6e1, type: 2}
   - {fileID: 1033256552959462, guid: 28a7b6c297005b14bbc604998970ee2f, type: 2}
+  - {fileID: 1033256552959462, guid: 179be20fe0916814da9ef7cc26a38d5a, type: 2}
   mushroomPrefabs:
   - {fileID: 1809036038685992, guid: af678e1bcd38a264d969205e3137e102, type: 2}
   - {fileID: 1368180348028010, guid: 1025465430845684e8cf7a8bf61ca0d6, type: 2}
+  - {fileID: 1368180348028010, guid: 348ce213da1c9c44cb1f1ffc2fa6983b, type: 2}
   allObjects: []
   trees: []
   mushrooms: []
