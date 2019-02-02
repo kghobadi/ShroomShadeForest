@@ -9,6 +9,8 @@ TagManager:
   - Shroom
   - ForestGen
   - Cursor
+  - AudioSourceP
+  - AudioObjPool
   layers:
   - Default
   - TransparentFX

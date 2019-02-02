@@ -27,15 +27,9 @@ public class FirstPersonController : MonoBehaviour
     public AudioClip[] currentFootsteps, indoorFootsteps, outsideFootsteps;
     AudioSource playerAudSource;
 
-    //dictionary to sort nearby audio sources by distance 
-    [SerializeField]
-    public Dictionary<AudioSource, float> soundCreators = new Dictionary<AudioSource, float>();
-    //to shorten if statement
-    public List<GameObject> audioObjects = new List<GameObject>();
-    //listener range
-    public float listeningRadius;
-    //to shorten if statement
-    public List<string> audioTags = new List<string>();
+    //random ambience set at start
+    public AudioSource ambientSource;
+    public AudioClip[] ambientSounds;
 
     //moving bools
     public bool canMove;
@@ -56,15 +50,10 @@ public class FirstPersonController : MonoBehaviour
     public int jumpFrameCounter, jumpFrameMax;
     public float jumpSpeed;
 
-    //random ambience set by trigger
-    public AudioSource ambientSource;
-    public AudioClip[] ambientSounds;
-    public AudioClip[] piano;
-    public AudioClip[] drone;
+    //player bounds 
+    public float xMin, xMax, zMin, zMax;
 
-    //game audio source
-    public AudioSource gameSource;
-    public AudioClip levelTransition;
+    
 
     void Start()
     {
@@ -158,11 +147,21 @@ public class FirstPersonController : MonoBehaviour
 
                 for (int i = 0; i < forestGen.trees.Count; i++)
                 {
-                    forestGen.trees[i].GetComponent<MeshRenderer>().material = currentShroom.GetComponent<SetShroom>().myShroomShader;
+                    float randomTreeChance = Random.Range(0, 100);
 
+                    if (randomTreeChance > 60)
+                    {
+                        forestGen.trees[i].GetComponent<MeshRenderer>().material = currentShroom.GetComponent<SetShroom>().myShroomShader;
+                    }
+                    
                     for(int t = 0; t < forestGen.trees[i].transform.childCount; t++)
                     {
-                        forestGen.trees[i].transform.GetChild(t).GetComponent<MeshRenderer>().material = currentShroom.GetComponent<SetShroom>().myShroomShader;
+                        float randomChangeChance = Random.Range(0, 100);
+
+                        if(randomChangeChance > 60)
+                        {
+                            forestGen.trees[i].transform.GetChild(t).GetComponent<MeshRenderer>().material = currentShroom.GetComponent<SetShroom>().myShroomShader;
+                        }
                     }
                 }
 
@@ -187,6 +186,9 @@ public class FirstPersonController : MonoBehaviour
             }
         }
 
+        //bounds player on map
+        PlayerBounding();
+
           // quit, class ic!!!
             if (Input.GetKeyDown(KeyCode.Escape))
             {
@@ -199,6 +201,30 @@ public class FirstPersonController : MonoBehaviour
                 SceneManager.LoadScene(0);
             }
 
+    }
+
+    void PlayerBounding()
+    {
+        //above xmax
+        if(transform.position.x > xMax)
+        {
+            transform.position = new Vector3(xMin + 15, transform.position.y, transform.position.z);
+        }
+        //below xmin
+        if(transform.position.x < xMin)
+        {
+            transform.position = new Vector3(xMax - 15, transform.position.y, transform.position.z);
+        }
+        //above zmax
+        if (transform.position.z > zMax)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, zMin + 15);
+        }
+        //below zmin    
+        if (transform.position.z < zMin)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, zMax - 15);
+        }
     }
     
     //increases move speed while player is moving over time
@@ -213,44 +239,16 @@ public class FirstPersonController : MonoBehaviour
     }
 
     //called by triggers to change ambient sound
-    public void RandomizeAmbience(int soundType)
+    public void RandomizeAmbience()
     {
         ambientSource.Stop();
-        switch (soundType)
-        {
-            //all ambience
-            case 0:
-                int randomAmbience = Random.Range(0, ambientSounds.Length);
-                ambientSource.clip = ambientSounds[randomAmbience];
-                break;
-            //piano only
-            case 1:
-                int randomPiano= Random.Range(0, piano.Length);
-                ambientSource.clip = piano[randomPiano];
-                break;
-            //drone only
-            case 2:
-                int randomDrone = Random.Range(0, drone.Length);
-                ambientSource.clip = drone[randomDrone];
-                break;
-        }
-        
+
+        int randomAmbience = Random.Range(0, ambientSounds.Length);
+        ambientSource.clip = ambientSounds[randomAmbience];
+
         ambientSource.Play();
     }
-
-    //if you want random footsteps
-    public void RandomizeFoosteps()
-    {
-        //poo my pantis
-        //idk it just like randomly changes the sounds between our array of array of footsteps or some shit
-        //hahaahaha
-    }
-
-    //called by trigger to announce new room
-    public void PlayLevelTransitionSound()
-    {
-        gameSource.PlayOneShot(levelTransition);
-    }
+    
 
     void PlayEatingSounds()
     {
@@ -268,45 +266,6 @@ public class FirstPersonController : MonoBehaviour
         currentFootsteps[0] = playerAudSource.clip;
     }
     
-    //this function shifts all audio source priorities dynamically
-    void ResetNearbyAudioSources()
-    {
-        //empty dictionary and audioObjects
-        soundCreators.Clear();
-        audioObjects.Clear();
-        //overlap sphere to find nearby sound creators
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, listeningRadius);
-        int i = 0;
-        while (i < hitColliders.Length)
-        {
-            GameObject audioObj = hitColliders[i].gameObject;
-
-            //check to see if obj has desired tag
-            //that the object is both active and not already part of our audioObjects list
-            //and that the object has an audio source
-            if (audioTags.Contains(audioObj.tag) &&
-                audioObj.activeSelf && !audioObjects.Contains(audioObj) &&
-                audioObj.GetComponent<AudioSource>() != null)
-            {
-                    //check distance and add to list
-                    float distanceAway = Vector3.Distance(hitColliders[i].transform.position, transform.position);
-                    //add to audiosource and distance to dictionary
-                    soundCreators.Add(audioObj.GetComponent<AudioSource>(), distanceAway);
-                    //add to list of objects
-                    audioObjects.Add(audioObj);
-                
-            }
-            i++;
-        }
-
-        int priority = 0;
-        //sort the dictionary by order of ascending distance away
-        foreach (KeyValuePair<AudioSource, float> item in soundCreators.OrderBy(key => key.Value))
-        {
-            // do something with item.Key and item.Value
-            item.Key.priority = priority;
-            priority++;
-        }
-    }
+  
 
 }

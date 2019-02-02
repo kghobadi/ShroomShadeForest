@@ -4,14 +4,15 @@ using UnityEngine;
 
 public class SetShroom : Interactable
 {
+    AudioObjectPool aop;
     Vector3 originalSize, largeSize, originalPosition;
 
     //lerp bools
-    bool lerpingUp, lerpingDown;
-    public float lerpSpeed, breatheDistance;
+    bool breathingIn, breathingOut;
+    public float breatheSpeed, breatheDistance;
+    public int rhythm;
 
     //audio for shroom
-    AudioSource shroomSource;
     public AudioClip[] breathIn, breathOut;
 
     public AudioClip eatingSound;
@@ -28,6 +29,7 @@ public class SetShroom : Interactable
 
     void Start()
     {
+        aop = GameObject.FindGameObjectWithTag("AudioObjPool").GetComponent<AudioObjectPool>();
         shroomMR = GetComponent<MeshRenderer>();
         myShroomShader = shroomMR.material;
 
@@ -43,51 +45,38 @@ public class SetShroom : Interactable
 
         transform.Rotate(0, randomRotate, 0);
 
-        lerpSpeed = Random.Range(0.5f, 2f);
-
-        shroomSource = GetComponent<AudioSource>();
-
+        rhythm = Random.Range(1, 5);
+        
         breatheDistance = 15;
     }
 
     void OnEnable()
     {
-        StartCoroutine(BreatheIn());
+        BreatheIn();
     }
 
     void Update()
     {
         if(Vector3.Distance(transform.position, player.transform.position) < breatheDistance && !returning && !playerHolding)
         {
-            Debug.Log("player near");
-            if (lerpingUp)
+            if (breathingIn)
             {
-                if (!shroomSource.isPlaying)
-                {
-                    PlaySound(breathIn);
-                }
-
-                transform.localScale = Vector3.Lerp(transform.localScale, largeSize, lerpSpeed * Time.deltaTime);
+                transform.localScale = Vector3.Lerp(transform.localScale, largeSize, breatheSpeed * Time.deltaTime);
 
                 if (Vector3.Distance(transform.localScale, largeSize) < 0.1f)
                 {
-                    StartCoroutine(BreatheOut());
+                    BreatheOut();
                 }
                 
             }
 
-            if (lerpingDown)
+            if (breathingOut)
             {
-                if (!shroomSource.isPlaying)
-                {
-                    PlaySound(breathOut);
-                }
-
-                transform.localScale = Vector3.Lerp(transform.localScale, originalSize, lerpSpeed * Time.deltaTime);
+                transform.localScale = Vector3.Lerp(transform.localScale, originalSize, breatheSpeed * Time.deltaTime);
 
                 if (Vector3.Distance(transform.localScale, originalSize) < 0.1f)
                 {
-                    StartCoroutine(BreatheIn());
+                    BreatheIn();
                 }
                 
             }
@@ -96,43 +85,56 @@ public class SetShroom : Interactable
         //after player puts back down
         if (returning)
         {
-            transform.position = Vector3.Lerp(transform.position, originalPosition, lerpSpeed * Time.deltaTime);
+            transform.position = Vector3.Lerp(transform.position, originalPosition, breatheSpeed * Time.deltaTime);
 
             if(Vector3.Distance(transform.position, originalPosition) < 0.1f)
             {
                 returning = false;
                 playerHolding = false;
 
-                StartCoroutine(BreatheIn());
+                BreatheIn();
             }
         }
         
     }
 
-    IEnumerator BreatheIn()
+    void BreatheIn()
     {
-        lerpingDown = false;
+        AudioSource shroomAudio = GetComponentInChildren<AudioSource>();
 
-        float randomWait = Random.Range(0.1f, 1);
-        yield return new WaitForSeconds(randomWait);
+        breathingIn = true;
+        breathingOut = false;
 
-        lerpingUp = true;
+        if (shroomAudio != null)
+        {
+            if (!shroomAudio.isPlaying)
+            {
+                PlaySound(breathIn);
+            }
+        }
     }
 
-    IEnumerator BreatheOut()
+    void BreatheOut()
     {
-        lerpingUp = false;
+        AudioSource shroomAudio = GetComponentInChildren<AudioSource>();
 
-        float randomWait = Random.Range(0.1f, 1);
-        yield return new WaitForSeconds(randomWait);
+        breathingIn = false;
+        breathingOut = true;
 
-        lerpingDown = true;
+        if (shroomAudio != null)
+        {
+            if (!shroomAudio.isPlaying)
+            {
+                PlaySound(breathOut);
+            }
+        }
     }
+    
 
     public void PlaySound(AudioClip[] sounds)
     {
         int randomSound = Random.Range(0, sounds.Length);
-        shroomSource.PlayOneShot(sounds[randomSound]);
+        GetComponentInChildren<AudioSource>().PlayOneShot(sounds[randomSound]);
     }
 
     public void SetYPos()
@@ -158,8 +160,14 @@ public class SetShroom : Interactable
         {
             base.Interact();
             originalPosition = transform.position;
-            lerpingDown = false;
-            lerpingUp = false;
+            //set our audio source free
+            GameObject shroomAudio = GetComponentInChildren<AudioSource>().gameObject;
+            if(shroomAudio != null)
+            {
+                aop.RemoveActiveAudio(shroomAudio);
+            }
+            breathingIn = false;
+            breathingOut = false;
             transform.localScale = originalSize;
             fpc.currentShroom = gameObject;
             fpc.pickingShroom = true;

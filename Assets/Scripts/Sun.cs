@@ -7,8 +7,7 @@ public class Sun : MonoBehaviour
     GameObject _player;
     FirstPersonController fpc;
     public int yesterday, dayCounter = 0;
-
-    public GameObject waterDay, waterNight;
+    
     public float rotationSpeed = 10;
     public Transform rotation;
 
@@ -49,8 +48,6 @@ public class Sun : MonoBehaviour
             isNight = false;
             isMidday = false;
             isDusk = false;
-            waterDay.SetActive(true);
-            waterNight.SetActive(false);
 
             //when its morning increase dayCounter
             if (dayCounter == yesterday)
@@ -84,8 +81,6 @@ public class Sun : MonoBehaviour
             isMidday = false;
             isDusk = false;
             isNight = true;
-            waterDay.SetActive(false);
-            waterNight.SetActive(true);
             
             //when its night, yesterday catches up to dayCounter
             yesterday = dayCounter;

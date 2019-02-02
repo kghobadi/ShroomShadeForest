@@ -49,13 +49,6 @@ public abstract class Interactable : MonoBehaviour {
         cursorSprite.sprite = originalCursor;
     }
 
-    //protected virtual void RandomIcon()
-    //{
-    //    int randomCursor = Random.Range(0, cursors.Length);
-    //    Vector2 cursorHotspot = new Vector2(cursors[randomCursor].width / 2, cursors[randomCursor].height / 2);
-    //    Cursor.SetCursor(cursors[randomCursor], cursorHotspot, CursorMode.Auto);
-    //}
-
     public virtual void Interact()
     {
         //do whatever the hell you want
