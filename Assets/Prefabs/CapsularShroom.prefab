@@ -187,14 +187,16 @@ MonoBehaviour:
   breatheDistance: 15
   rhythm: 0
   breathIn:
-  - {fileID: 8300000, guid: d3aa8cd5ea173fa48a1bc61129d96f51, type: 3}
-  - {fileID: 8300000, guid: 8a0e8774212c8c64e9d3e953f9eb17c6, type: 3}
-  - {fileID: 8300000, guid: b9c6a668becf7e04a891614091584517, type: 3}
+  - {fileID: 8300000, guid: 77499e2e1ecc95749bbc7feaa0efc62f, type: 3}
+  - {fileID: 8300000, guid: f4ca88dadb5a82f43a2f5be32f37a959, type: 3}
+  - {fileID: 8300000, guid: a1280887f3d3f604fb25f654549dccf9, type: 3}
   breathOut:
-  - {fileID: 8300000, guid: a4bd59310e3648249bedc83b83134045, type: 3}
-  - {fileID: 8300000, guid: 8663de10ef4a6b54099efff5e9ecc761, type: 3}
-  - {fileID: 8300000, guid: acab5aa24b40ae84691a984dcd7d429d, type: 3}
-  eatingSound: {fileID: 8300000, guid: b910315c31f81584d9acf95d751ac75c, type: 3}
+  - {fileID: 8300000, guid: ef9d8aee886d7164db0c8b261e24a978, type: 3}
+  - {fileID: 8300000, guid: e15fae320d4d9b244bb43635852101da, type: 3}
+  - {fileID: 8300000, guid: 21ca88ccb01ddfb4b838779b7d406841, type: 3}
+  - {fileID: 8300000, guid: ebef46c134548ae479b485663cd64675, type: 3}
+  - {fileID: 8300000, guid: 6b34e534e50b9a0468e572c133a60ca6, type: 3}
+  eatingSound: {fileID: 8300000, guid: a1280887f3d3f604fb25f654549dccf9, type: 3}
   shroomMR: {fileID: 0}
   myShroomShader: {fileID: 0}
   playerHolding: 0
